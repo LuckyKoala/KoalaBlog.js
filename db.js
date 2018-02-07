@@ -59,14 +59,17 @@ DB.prototype.list = function(callback) {
     }
 }
 
-DB.prototype.new = function(title, content, summary, callback) {
+DB.prototype.new = function(data, callback) {
     const promise = r.table('posts').insert({
-        'title': title,
-        'summary': summary || 'No summary',
-        'content': content
+        'title': data.title,
+        'summary': data.summary || 'No summary',
+        'content': data.content
     }).run()
-    if(arguments.length<=3) {
-        return promise
+    //TODO handle no enough argument
+    if(arguments.length<=1) {
+        return new Promise((resolve, reject) => {
+            promise.then(result => resolve(result['generated_keys'][0]), reject)
+        })
     } else {
         promise.then(result => callback(false, result['generated_keys'][0]), callback)
     }
@@ -93,13 +96,22 @@ DB.prototype.delete = function(key, callback) {
     }
 }
 
-DB.prototype.update = function(key, title, content, summary, callback) {
-    const promise = r.table("posts").get(key).update({
-        'title': title,
-        'summary': summary,
-        'content': content
-    }).run()
-    if(arguments.length<=4) {
+DB.prototype.update = function(key, data, callback) {
+    //TODO Only update changed data
+    /*
+    let newData = {}
+    if(title) newData.title = title
+    if(content) newData.content = content
+    if(summary) newData.summary = summary
+    */
+
+    const promise = r.table("posts").get(key)
+        .update({
+            'title': data.title,
+            'summary': data.summary,
+            'content': data.content
+        }).run()
+    if(arguments.length<=2) {
         return promise
     } else {
         promise.then(result => {
