@@ -27,15 +27,19 @@ app.use(cookieSession({
 }))
 //前台
 app.get('/', (req, res) => {
-    db.list(blogs => res.render('list.html', {
-        blogs: blogs
-    }), error => console.log(error))
+    db.list()
+        .then(blogs => res.render('list.html', {
+            blogs: blogs
+        }))
+        .catch(console.log)
 })
 
 app.get('/blogs/:key', function (req, res) {
-    db.find(req.params.key, blog => res.render('detail.html', {
-        blog: blog
-    }))
+    db.find(req.params.key)
+        .then(blog => res.render('detail.html', {
+            blog: blog
+        }))
+        .catch(console.log)
 })
 
 //后台
@@ -51,7 +55,7 @@ db.reset().then(ret => {
         culpa qui officia deserunt mollit anim id est laborum.
     `
     //测试 文章更新
-    db.new('第一篇博客', content, 'No summary', key => db.update(key, '第一篇博客', '编辑后的内容', ' asd '))
+    db.new('第一篇博客', content, 'No summary', (err, key) => db.update(key, '第一篇博客', '编辑后的内容', ' asd '))
     db.new('第二篇博客', content)
     db.new('第三篇博客', content)
     db.new('第四篇博客', content)

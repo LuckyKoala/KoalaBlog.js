@@ -50,73 +50,63 @@ DB.prototype.init0 = function(dropIfExists=false, resolve, reject) {
     }
 }
 
-DB.prototype.list = function(successCallback, failureCallback) {
-    successCallback = successCallback || function(value) {
-        console.log(value)
+DB.prototype.list = function(callback) {
+    const promise = r.table('posts').run()
+    if(arguments.length==0) {
+        return promise
+    } else {
+        promise.then(result => callback(false, result), callback)
     }
-    failureCallback = failureCallback || function(error) {
-        console.log(error)
-    }
-
-    r.table('posts').run().then(successCallback, failureCallback)
 }
 
-DB.prototype.new = function(title, content, summary, successCallback, failureCallback) {
-    successCallback = successCallback || function(value) {
-        console.log(value)
-    }
-    failureCallback = failureCallback || function(error) {
-        console.log(error)
-    }
-
-    r.table('posts').insert({
+DB.prototype.new = function(title, content, summary, callback) {
+    const promise = r.table('posts').insert({
         'title': title,
         'summary': summary || 'No summary',
         'content': content
-    }).run().then(result => successCallback(result["generated_keys"][0]), failureCallback)
+    }).run()
+    if(arguments.length<=3) {
+        return promise
+    } else {
+        promise.then(result => callback(false, result['generated_keys'][0]), callback)
+    }
 }
 
-DB.prototype.find = function(key, successCallback, failureCallback) {
-    successCallback = successCallback || function(value) {
-        console.log(value)
+DB.prototype.find = function(key, callback) {
+    const promise = r.table("posts").get(key).run()
+    if(arguments.length<=1) {
+        return promise
+    } else {
+        promise.then(result => callback(false, result), callback)
     }
-    failureCallback = failureCallback || function(error) {
-        console.log(error)
-    }
-
-    r.table("posts").get(key).run().then(successCallback, failureCallback)
 }
 
-DB.prototype.delete = function(key, successCallback, failureCallback) {
-    successCallback = successCallback || function(value) {
-        console.log(value)
+DB.prototype.delete = function(key, callback) {
+    const promise = r.table("posts").get(key).delete().run()
+    if(arguments.length<=1) {
+        return promise
+    } else {
+        promise.then(result => {
+            if(result["deleted"]==1) callback(false, result)
+            else callback('deleted failed', result)
+        }, callback)
     }
-    failureCallback = failureCallback || function(error) {
-        console.log(error)
-    }
-
-    r.table("posts").get(key).delete().run().then(result => {
-        if(result["deleted"]==1) successCallback(result)
-        else failureCallback(result)
-    }, failureCallback)
 }
 
-DB.prototype.update = function(key, title, content, summary, successCallback, failureCallback) {
-    successCallback = successCallback || function(value) {
-        console.log(value)
-    }
-    failureCallback = failureCallback || function(error) {
-        console.log(error)
-    }
-
-    r.table("posts").get(key).update({
+DB.prototype.update = function(key, title, content, summary, callback) {
+    const promise = r.table("posts").get(key).update({
         'title': title,
         'summary': summary,
         'content': content
-    }).run().then(result => {
-        if(result["replaced"]==3) successCallback(result)
-        else failureCallback(result)
-    }, failureCallback)
+    }).run()
+    if(arguments.length<=4) {
+        return promise
+    } else {
+        promise.then(result => {
+            if(result["replaced"]==3) callback(false, result)
+            else callback('replaced failed', result)
+        }, callback)
+    }
 }
 
 
