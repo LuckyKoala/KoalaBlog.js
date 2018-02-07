@@ -1,86 +1,123 @@
-const cloneDeep = require('lodash/cloneDeep');
+const cloneDeep = require('lodash/cloneDeep')
+const Promise = require('promise')
+const r = require('rethinkdbdash')({
+    db: 'blog'
+})
 
 function DB(username='LK', password='123456') {
-    this.blogs = []
-    this.owner = {
-        'username': username,
-        'password': password
+    //Note: must invoke init first
+}
+
+DB.prototype.reset = function() {
+    return this.init(true)
+}
+
+DB.prototype.init = function(dropIfExists=false) {
+    return new Promise((resolve, reject) => this.init0(dropIfExists, resolve, reject))
+}
+
+DB.prototype.init0 = function(dropIfExists=false, resolve, reject) {
+    if(dropIfExists) {
+        r.dbList().contains('blog')
+            .do(function(exists) {
+                return r.branch(
+                    exists,
+                    r.dbDrop('blog'),
+                    'database blog not exists yet'
+                )
+            }).run()
+            .then(ret => r.dbCreate('blog'))
+            .then(ret => r.tableCreate('posts'))
+            .then(resolve, reject)
+    } else {
+        r.dbList().contains('blog')
+            .do(function(exists) {
+                return r.branch(
+                    exists,
+                    'database blog exists',
+                    r.dbCreate("blog")
+                )
+            }).run()
+            .then(ret => r.tableList().contains('posts')
+                .do(function(exists) {
+                    return r.branch(
+                        exists,
+                        'table posts exists',
+                        r.tableCreate("posts")
+                    )
+                }).run())
+            .then(resolve, reject)
     }
 }
 
-DB.prototype.loginWith = function(username, password) {
-    return username == this.owner['username'] && 
-        password == this.owner['password']
-}
-
-DB.prototype.isOwner = function(username) {
-    return username == this.owner['username']
-}
-
-DB.prototype.setOwner = function(username, password) {
-    this.owner = {
-        'username': username,
-        'password': password
+DB.prototype.list = function(successCallback, failureCallback) {
+    successCallback = successCallback || function(value) {
+        console.log(value)
     }
+    failureCallback = failureCallback || function(error) {
+        console.log(error)
+    }
+
+    r.table('posts').run().then(successCallback, failureCallback)
 }
 
-DB.prototype.new = function(title, content) {
-    const index = this.blogs.length.toString()
-    this.blogs.push({
+DB.prototype.new = function(title, content, summary, successCallback, failureCallback) {
+    successCallback = successCallback || function(value) {
+        console.log(value)
+    }
+    failureCallback = failureCallback || function(error) {
+        console.log(error)
+    }
+
+    r.table('posts').insert({
         'title': title,
-        'content': content,
-        'deleted': false,
-        'id': index
-    })
-    return index
+        'summary': summary || 'No summary',
+        'content': content
+    }).run().then(result => successCallback(result["generated_keys"][0]), failureCallback)
 }
 
-DB.prototype.list = function() {
-    const blogs = cloneDeep(this.blogs)
-    return blogs.filter(v => !v['deleted'])
-}
-
-DB.prototype.find0 = function(index, inc=0) {
-    if(index < this.blogs.length && index >= 0) {
-        const blog = this.blogs[index]
-        if(!blog['deleted']) {
-            return blog
-        } else if(inc != 0) {
-            /*
-            如果指定增量，则递归查找
-            （使逻辑删除后，文章的导航功能仍能正常运行）
-            尾递归  
-            */
-            return this.find0(index+inc, inc)
-        }
+DB.prototype.find = function(key, successCallback, failureCallback) {
+    successCallback = successCallback || function(value) {
+        console.log(value)
     }
-    return false
-}
-
-DB.prototype.find = function(index, inc=0) {
-    const blog = this.find0(index, inc)
-    if(blog) return cloneDeep(blog)
-    return false
-}
-
-DB.prototype.delete = function(index) {
-    // 逻辑删除
-    let blog = this.find0(index)
-    if(blog) {
-        blog['deleted'] = true
-        return true
+    failureCallback = failureCallback || function(error) {
+        console.log(error)
     }
-    return false
+
+    r.table("posts").get(key).run().then(successCallback, failureCallback)
 }
 
-DB.prototype.update = function(index, title, content) {
-    let blog = this.find0(index)
-    if(blog) {
-        blog['title'] = title
-        blog['content'] = content
-        return true
+DB.prototype.delete = function(key, successCallback, failureCallback) {
+    successCallback = successCallback || function(value) {
+        console.log(value)
     }
-    return false
+    failureCallback = failureCallback || function(error) {
+        console.log(error)
+    }
+
+    r.table("posts").get(key).delete().run().then(result => {
+        if(result["deleted"]==1) successCallback(result)
+        else failureCallback(result)
+    }, failureCallback)
 }
+
+DB.prototype.update = function(key, title, content, summary, successCallback, failureCallback) {
+    successCallback = successCallback || function(value) {
+        console.log(value)
+    }
+    failureCallback = failureCallback || function(error) {
+        console.log(error)
+    }
+
+    r.table("posts").get(key).update({
+        'title': title,
+        'summary': summary,
+        'content': content
+    }).run().then(result => {
+        if(result["replaced"]==3) successCallback(result)
+        else failureCallback(result)
+    }, failureCallback)
+}
+
 
 module.exports = DB;
