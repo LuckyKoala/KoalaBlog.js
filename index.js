@@ -168,6 +168,7 @@ router.route('/api/blogs')
         next(new Error('not implemented'))
     });    
 
+app.use(router)
 
 db.reset().then(ret => {
     //测试 文本

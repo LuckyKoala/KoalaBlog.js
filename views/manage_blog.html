@@ -7,10 +7,10 @@
 <script>
 function initVM(data) {
     var vm = new Vue({
-	    delimiters: ['${', '}'],
+        delimiter: ['${', '}'],
         el: '#vm',
         data: {
-            blogs: data.blogs
+            blogs: data
         },
         methods: {
             edit_blog: function (blog) {
