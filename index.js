@@ -15,7 +15,7 @@ const app = express()
 const db = new DB()
 //配置nunjucks环境
 const env = nunjucks.configure('views', {
-    autoescape: true, 
+    autoescape: true,
     express: app
 })
 //配置markdown渲染器
@@ -69,10 +69,10 @@ app.get('/manage/blogs/new', function(req, res) {
     })
 })
 
-app.get('/manage/blogs/update/:blog_key', function(req, res) {
+app.get('/manage/blogs/update/:key', function(req, res) {
     return res.render('edit_blog.html', {
-        id: req.params.blog_key,
-        action: '/api/blogs/'+req.params.blog_key,
+        id: req.params.key,
+        action: '/api/blogs/'+req.params.key,
         method: 'POST'
     })
 })
@@ -114,8 +114,8 @@ app.get('/api', function(req, res) {
         }
     })
 })
-  
-router.route('/api/blogs/:blog_key')
+
+router.route('/api/blogs/:key')
     .all(function(req, res, next) {
         next();
     })
@@ -166,7 +166,7 @@ router.route('/api/blogs')
     })
     .put(function(req, res, next) {
         next(new Error('not implemented'))
-    });    
+    });
 
 app.use(router)
 
@@ -182,33 +182,33 @@ db.reset().then(ret => {
     `
     //测试 文章更新
     db.new({
-        title: '第一篇博客', 
+        title: '第一篇博客',
         content: content,
         summary: 'No summary'
     }).then(key => db.update(key, {
-        title: '第一篇博客', 
+        title: '第一篇博客',
         content: '编辑后的内容',
         summary: 'No summary'
     }))
     db.new({
-        title: '第二篇博客', 
+        title: '第二篇博客',
         content: content
     }).then(key => db.delete(key)) //测试 文章删除
     db.new({
-        title: '第三篇博客', 
+        title: '第三篇博客',
         content: content
     })
     db.new({
-        title: '第四篇博客', 
+        title: '第四篇博客',
         content: content
     })
     db.new({
-        title: '第五篇博客', 
+        title: '第五篇博客',
         content: content
     })
     //测试 markdown文档
     db.new({
-        title: 'Markdown文章', 
+        title: 'Markdown文章',
         content: '[Blog](http://twodam.net) `hi`'
     })
 

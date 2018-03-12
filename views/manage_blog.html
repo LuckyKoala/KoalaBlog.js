@@ -18,7 +18,7 @@ function initVM(data) {
             },
             delete_blog: function (blog) {
                 if (confirm('确认要删除“' + blog.title + '”？删除后不可恢复！')) {
-                    getJSON('/api/blogs/delete/' + blog.id, function (err, r) {
+                    deleteJSON('/api/blogs/' + blog.id, function (err, r) {
                         if (err) {
                             return alert(err.message || err.error || err);
                         }
