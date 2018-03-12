@@ -148,7 +148,7 @@ function toSmartDate(timestamp) {
     var
         today = new Date(g_time),
         now = today.getTime(),
-        s = '1·ÖÖÓÇ°?',
+        s = '1ï¿½ï¿½ï¿½ï¿½Ç°?',
         t = now - timestamp;
     if (t > 604800000) {
         // 1 week ago:
@@ -159,19 +159,19 @@ function toSmartDate(timestamp) {
             d = that.getDate(),
             hh = that.getHours(),
             mm = that.getMinutes();
-        s = y===today.getFullYear() ? '' : y + 'Äê';
-        s = s + m + 'ÔÂ' + d + 'ÈÕ' + hh + ':' + (mm < 10 ? '0' : '') + mm;
+        s = y===today.getFullYear() ? '' : y + 'ï¿½ï¿½';
+        s = s + m + 'ï¿½ï¿½' + d + 'ï¿½ï¿½' + hh + ':' + (mm < 10 ? '0' : '') + mm;
     }
     else if (t >= 86400000) {
         // 1-6 days ago:
-        s = Math.floor(t / 86400000) + 'ÌìÇ°';
+        s = Math.floor(t / 86400000) + 'ï¿½ï¿½Ç°';
     }
     else if (t >= 3600000) {
         // 1-23 hours ago:
         s = Math.floor(t / 3600000) + 'Ð¡Ê±Ç°';
     }
     else if (t >= 60000) {
-        s = Math.floor(t / 60000) + '·ÖÖÓÇ°';
+        s = Math.floor(t / 60000) + 'ï¿½ï¿½ï¿½ï¿½Ç°';
     }
     return s;
 }
@@ -307,20 +307,25 @@ function _httpJSON(method, url, data, callback) {
         dataType: 'json'
     };
     if (method==='GET') {
-        opt.url = url + '?' + data;
-    }
-    if (method==='POST') {
+      //Only append ? while there are params
+      if (data) opt.url = url + '?' + data;
+      //Otherwise we simply use url
+      else opt.url = url;
+    } else if (method==='POST') {
         opt.url = url;
         opt.data = JSON.stringify(data || {});
         opt.contentType = 'application/json';
+    } else if (method==='DELETE') {
+        opt.url = url;
     }
+
     $.ajax(opt).done(function (r) {
         if (r && r.error) {
             return callback(r);
         }
         return callback(null, r);
     }).fail(function (jqXHR, textStatus) {
-        return callback({'error': 'http_bad_response', 'data': '' + jqXHR.status, 'message': 'ÍøÂçºÃÏñ³öÎÊÌâÁË (HTTP ' + jqXHR.status + ')'});
+        return callback({'error': 'http_bad_response', 'data': '' + jqXHR.status, 'message': 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (HTTP ' + jqXHR.status + ')'});
     });
 }
 
@@ -345,6 +350,10 @@ function postJSON(url, data, callback) {
         data = {};
     }
     _httpJSON('POST', url, data, callback);
+}
+
+function deleteJSON(url, callback) {
+    _httpJSON('DELETE', url, {}, callback);
 }
 
 // extends Vue:
