@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 //加载库
 const cookieSession = require('cookie-session')
 const express = require('express')
@@ -10,8 +11,7 @@ const markdown = require('nunjucks-markdown')
 //加载自定义模块
 const DB = require('./db')
 //创建对象
-const app = express()
-
+const app = express();
 const db = new DB()
 //配置nunjucks环境
 const env = nunjucks.configure('views', {
@@ -29,6 +29,16 @@ app.use(cookieSession({
     name: 'session',
     keys: ['happy coding', 'secret safe', 'under protect']
 }))
+
+//加载命令行参数
+const optionDefinitions = [
+  { name: 'port', alias: 'p', type: Number, defaultValue: 3000 },
+  //{ name: 'debug', alias: 'd', type: Boolean, defaultOption: false },
+  { name: 'reset', alias: 'r', type: Boolean }
+]
+const options = require('command-line-args')(optionDefinitions)
+console.log(options)
+
 //前台
 app.get('/', (req, res) => {
     db.list()
@@ -78,18 +88,6 @@ app.get('/manage/blogs/update/:key', function(req, res) {
 })
 
 //后台(API)
-
-/*
-router.param('blog_key', function(req, res, next, key) {
-    db.find(req.params.key)
-        .then(blog => {
-            req.blog = blog
-            next()
-        })
-        .catch(console.log)
-});
-*/
-
 app.get('/api', function(req, res) {
     return res.json({
         "create_blog": {
@@ -170,48 +168,58 @@ router.route('/api/blogs')
 
 app.use(router)
 
-db.reset().then(ret => {
-    //测试 文本
-    const content = `
-        Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
-        incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-        nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.
-        Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat
-        nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in
-        culpa qui officia deserunt mollit anim id est laborum.
-    `
-    //测试 文章更新
-    db.new({
-        title: '第一篇博客',
-        content: content,
-        summary: 'No summary'
-    }).then(key => db.update(key, {
-        title: '第一篇博客',
-        content: '编辑后的内容',
-        summary: 'No summary'
-    }))
-    db.new({
-        title: '第二篇博客',
-        content: content
-    }).then(key => db.delete(key)) //测试 文章删除
-    db.new({
-        title: '第三篇博客',
-        content: content
-    })
-    db.new({
-        title: '第四篇博客',
-        content: content
-    })
-    db.new({
-        title: '第五篇博客',
-        content: content
-    })
-    //测试 markdown文档
-    db.new({
-        title: 'Markdown文章',
-        content: '[Blog](http://twodam.net) `hi`'
-    })
+//启动服务器
+if (!options['reset']) {
+  db.init().then(ret => {
+    //监听指定端口并输出提示语句
+    app.listen(options['port'], () => console.log(`Example app listening on \
+      port ${options['port']}!` ))
+  }).catch(console.log)
+} else {
+  db.reset().then(ret => {
+      //测试 文本
+      const content = `
+          Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
+          incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+          nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.
+          Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat
+          nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+      `
+      //测试 文章更新
+      db.new({
+          title: '第一篇博客',
+          content: content,
+          summary: 'No summary'
+      }).then(key => db.update(key, {
+          title: '第一篇博客',
+          content: '编辑后的内容',
+          summary: 'No summary'
+      }))
+      db.new({
+          title: '第二篇博客',
+          content: content
+      }).then(key => db.delete(key)) //测试 文章删除
+      db.new({
+          title: '第三篇博客',
+          content: content
+      })
+      db.new({
+          title: '第四篇博客',
+          content: content
+      })
+      db.new({
+          title: '第五篇博客',
+          content: content
+      })
+      //测试 markdown文档
+      db.new({
+          title: 'Markdown文章',
+          content: '[Blog](http://twodam.net) `hi`'
+      })
 
-    //监听3000端口并输出提示语句
-    app.listen(3000, () => console.log('Example app listening on port 3000!'))
-}).catch(err => console.log(err))
+      //监听指定端口并输出提示语句
+      app.listen(options['port'], () => console.log(`Example app listening on \
+        port ${options['port']}!` ))
+  }).catch(console.log)
+}

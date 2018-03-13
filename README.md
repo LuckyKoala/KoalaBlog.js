@@ -2,8 +2,6 @@
 
 Blog written by JavaScript.
 
-# Installation
-
 ## Install dependency
 
 `npm install`
@@ -18,6 +16,10 @@ Check documention on [Official Site](https://www.rethinkdb.com/docs/install/)
 
 Run command `rethinkdb` in the directory where you want to store your data.
 
-## Run KoalaBlog server
+## Run KoalaBlog
 
-`node index.js`
+```
+chmod a+x koalablog.js
+./koalablog.js -p 3000 #Run at port 3000.
+./koalablog.js -p 3000 --reset #Run at port 3000 and reset database.
+```
