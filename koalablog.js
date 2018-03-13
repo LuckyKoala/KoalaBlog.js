@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 //加载库
-const cookieSession = require('cookie-session')
 const express = require('express')
 const router = express.Router();
 const nunjucks = require('nunjucks')
@@ -24,20 +23,19 @@ markdown.register(env, marked);
 app.use(express.static('static'))
 //body-parser
 app.use(express.json())
-//配置cookieSession
-app.use(cookieSession({
-    name: 'session',
-    keys: ['happy coding', 'secret safe', 'under protect']
-}))
 
 //加载命令行参数
 const optionDefinitions = [
   { name: 'port', alias: 'p', type: Number, defaultValue: 3000 },
-  //{ name: 'debug', alias: 'd', type: Boolean, defaultOption: false },
+  { name: 'token', alias: 't', type: String, defaultValue: 'happy coding'},
+  { name: 'debug', alias: 'd', type: Boolean },
   { name: 'reset', alias: 'r', type: Boolean }
 ]
 const options = require('command-line-args')(optionDefinitions)
-console.log(options)
+if(!options.debug && options.token === 'happy coding' ) {
+  console.log("You haven't set token explicily, so you should" +
+   "remember that default token is 'happy coding'")
+}
 
 //前台
 app.get('/', (req, res) => {
@@ -56,17 +54,6 @@ app.get('/blogs/:key', function (req, res) {
         .catch(console.log)
 })
 
-/*
-app.get('/user/login', function(req, res) {
-    return res.render('login.html')
-})
-
-app.get('/user/logout', function(req, res) {
-    req.session.username = null
-    return res.redirect('/')
-})
-*/
-
 app.get('/manage/blogs', function(req, res) {
     return res.render('manage_blog.html')
 })
@@ -74,16 +61,14 @@ app.get('/manage/blogs', function(req, res) {
 app.get('/manage/blogs/new', function(req, res) {
     return res.render('edit_blog.html', {
         id: '',
-        action: '/api/blogs',
-        method: 'POST'
+        action: '/api/blogs'
     })
 })
 
 app.get('/manage/blogs/update/:key', function(req, res) {
     return res.render('edit_blog.html', {
         id: req.params.key,
-        action: '/api/blogs/'+req.params.key,
-        method: 'POST'
+        action: '/api/blogs/'+req.params.key
     })
 })
 
@@ -113,6 +98,10 @@ app.get('/api', function(req, res) {
     })
 })
 
+function tokenInvalid(token) {
+    return !(options.debug || token === options.token)
+}
+
 router.route('/api/blogs/:key')
     .all(function(req, res, next) {
         next();
@@ -123,18 +112,26 @@ router.route('/api/blogs/:key')
             .catch(any => res.json({'error': 'Blog not exists'}))
     })
     .post(function(req, res, next) {
-        db.update(req.params.key, req.body)
-            .then(any => res.json({
-                'message': 'Blog updated',
-                'key': req.params.key
-            }))
-            //FIXME potential repressed the real error
-            .catch(any => res.json({'error': 'Not Found'}))
+        if(tokenInvalid(req.body.token)) {
+          res.json({'error': 'Invalid token'})
+        } else {
+          db.update(req.params.key, req.body)
+              .then(any => res.json({
+                  'message': 'Blog updated',
+                  'key': req.params.key
+              }))
+              //FIXME potential repressed the real error
+              .catch(any => res.json({'error': 'Not Found'}))
+        }
     })
     .delete(function(req, res, next) {
+      if(tokenInvalid(req.body.token)) {
+        res.json({'error': 'Invalid token'})
+      } else {
         db.delete(req.params.key)
             .then(any => res.json({'message': 'Blog deleted'}))
             .catch(any => res.json({'error': 'Not Found'}))
+      }
     })
     .put(function(req, res, next) {
         next(new Error('not implemented'))
@@ -150,6 +147,9 @@ router.route('/api/blogs')
             .catch(console.log)
     })
     .post(function(req, res, next) {
+      if(tokenInvalid(req.body.token)) {
+        res.json({'error': 'Invalid token'})
+      } else {
         db.new(req.body)
             .then(key => res.json({
                 'message': 'New blog created',
@@ -157,6 +157,7 @@ router.route('/api/blogs')
             }))
             //FIXME potential repressed the real error
             .catch(any => res.json({'error': 'Not Found'}))
+      }
     })
     .delete(function(req, res, next) {
         //TODO maybe delete all posts

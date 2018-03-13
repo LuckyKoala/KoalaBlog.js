@@ -17,8 +17,11 @@ function initVM(data) {
                 location.assign('/manage/blogs/update/' + blog.id);
             },
             delete_blog: function (blog) {
-                if (confirm('确认要删除“' + blog.title + '”？删除后不可恢复！')) {
-                    deleteJSON('/api/blogs/' + blog.id, function (err, r) {
+                const token = prompt("What's your token?");
+                if (token) {
+                    deleteJSON('/api/blogs/' + blog.id, {
+                      token: token
+                    }, function (err, r) {
                         if (err) {
                             return alert(err.message || err.error || err);
                         }

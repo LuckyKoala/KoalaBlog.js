@@ -20,22 +20,6 @@
                 <li><a target="_blank" href="#"><i class="uk-icon-book"></i> 教程</a></li>
                 <li><a target="_blank" href="https://github.com/LuckyKoala/KoalaBlog.js"><i class="uk-icon-code"></i> 源码</a></li>
             </ul>
-            <div class="uk-navbar-flip">
-                <ul class="uk-navbar-nav">
-                {% if session['username'] %}
-                    <li class="uk-parent" data-uk-dropdown>
-                        <a href="#0"><i class="uk-icon-user"></i> {{ session['username'] }}</a>
-                        <div class="uk-dropdown uk-dropdown-navbar">
-                            <ul class="uk-nav uk-nav-navbar">
-                                <li><a href="/user/logout"><i class="uk-icon-sign-out"></i> 登出</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                {% else %}
-                    <li><a href="/user/login"><i class="uk-icon-sign-in"></i> 登录</a></li>
-                {% endif %}
-                </ul>
-            </div>
         </div>
     </nav>
 

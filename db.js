@@ -4,7 +4,7 @@ const r = require('rethinkdbdash')({
     db: 'blog'
 })
 
-function DB(username='LK', password='123456') {
+function DB() {
     //Note: must invoke init first
 }
 

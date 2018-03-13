@@ -25,6 +25,8 @@ Run command `rethinkdb` in the directory where you want to store your data.
 chmod a+x koalablog.js
 ./koalablog.js -p 3000 #Run at port 3000.
 ./koalablog.js -p 3000 --reset #Run at port 3000 and reset database.
+./koalablog.js -p 3000 --token '233' #Run at port 3000 and use token '233'.
+./koalablog.js --debug #Run with debug mode enabled.
 ```
 
 # Features
@@ -33,3 +35,4 @@ chmod a+x koalablog.js
 * View all posts or detail of specified post.
 * RESTful API.
 * Simple CLI for setting port number and enabling debug mode.
+* Token is required for operation that will change database.

@@ -311,12 +311,10 @@ function _httpJSON(method, url, data, callback) {
       if (data) opt.url = url + '?' + data;
       //Otherwise we simply use url
       else opt.url = url;
-    } else if (method==='POST') {
+    } else if (method==='POST' || method==='DELETE') {
         opt.url = url;
         opt.data = JSON.stringify(data || {});
         opt.contentType = 'application/json';
-    } else if (method==='DELETE') {
-        opt.url = url;
     }
 
     $.ajax(opt).done(function (r) {
@@ -352,8 +350,12 @@ function postJSON(url, data, callback) {
     _httpJSON('POST', url, data, callback);
 }
 
-function deleteJSON(url, callback) {
-    _httpJSON('DELETE', url, {}, callback);
+function deleteJSON(url, data, callback) {
+    if (arguments.length===2) {
+        callback = data;
+        data = {};
+    }
+    _httpJSON('DELETE', url, data, callback);
 }
 
 // extends Vue:
