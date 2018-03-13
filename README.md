@@ -2,9 +2,12 @@
 
 Blog written by JavaScript.
 
-## Install dependency
+## Download KoalaBlog.js and its dependency
 
-`npm install`
+```
+git clone git@github.com:LuckyKoala/KoalaBlog.js.git
+npm install
+```
 
 ## Install RethinkDB server
 
