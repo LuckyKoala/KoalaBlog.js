@@ -26,3 +26,10 @@ chmod a+x koalablog.js
 ./koalablog.js -p 3000 #Run at port 3000.
 ./koalablog.js -p 3000 --reset #Run at port 3000 and reset database.
 ```
+
+# Features
+
+* Control pane for creating, editing and deleting posts.
+* View all posts or detail of specified post.
+* RESTful API.
+* Simple CLI for setting port number and enabling debug mode.
