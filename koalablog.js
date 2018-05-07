@@ -33,7 +33,7 @@ const optionDefinitions = [
 ];
 const options = require('command-line-args')(optionDefinitions);
 if(!options.debug && options.token === 'happy coding' ) {
-  console.log("You haven't set token explicily, so you should" +
+  console.log("You haven't set token explicily, so you should " +
               "remember that default token is 'happy coding'");
 }
 
@@ -221,6 +221,6 @@ if (!options['reset']) {
 
       //监听指定端口并输出提示语句
       app.listen(options['port'], () => console.log(`Example app listening on \
-        port ${options['port']}!` ));
+        port ${options['port']}! \nPress Ctrl+C to stop the program.` ));
   }).catch(console.log);
 }
