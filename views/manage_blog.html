@@ -19,7 +19,7 @@ function initVM(data) {
             delete_blog: function (blog) {
                 const token = prompt("What's your token?");
                 if (token) {
-                    deleteJSON('/api/blogs/' + blog.id, {
+                    deleteJSON('http://localhost:3000/api/blogs/' + blog.id, {
                       token: token
                     }, function (err, r) {
                         if (err) {
@@ -34,7 +34,7 @@ function initVM(data) {
     $('#vm').show();
 }
 $(function() {
-    getJSON('/api/blogs', function (err, results) {
+    getJSON('http://localhost:3000/api/blogs', function (err, results) {
         if (err) {
             return fatal(err);
         }

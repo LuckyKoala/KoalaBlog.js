@@ -31,7 +31,7 @@ function initVM(blog) {
 }
 $(function () {
     if (ID) {
-        getJSON('/api/blogs/' + ID, function (err, blog) {
+        getJSON('http://localhost:3000/api/blogs/' + ID, function (err, blog) {
             if (err) {
                 return fatal(err);
             }

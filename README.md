@@ -2,6 +2,8 @@
 
 Blog written by JavaScript.
 
+This is the repository for frontend of KoalaBlog, check backend in [Koala-backend](https://github.com/LuckyKoala/koalajs-backend)
+
 ## Download KoalaBlog.js and its dependency
 
 ```
@@ -9,24 +11,13 @@ git clone git@github.com:LuckyKoala/KoalaBlog.js.git
 npm install
 ```
 
-## Install RethinkDB server
-
-Check documention on [Official Site](https://www.rethinkdb.com/docs/install/)
-
 # Usage
-
-## Run RethinkDB server
-
-Run command `rethinkdb` in the directory where you want to store your data.
 
 ## Run KoalaBlog
 
 ```
 chmod a+x koalablog.js
 ./koalablog.js -p 3000 #Run at port 3000.
-./koalablog.js -p 3000 --reset #Run at port 3000 and reset database.
-./koalablog.js -p 3000 --token '233' #Run at port 3000 and use token '233'.
-./koalablog.js --debug #Run with debug mode enabled.
 ```
 
 # Features
